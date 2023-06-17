@@ -3,6 +3,14 @@ from PIL import Image
 from transformers import DonutProcessor, VisionEncoderDecoderModel
 import torch
 import re
+from deepface import DeepFace
+from fastapi import FastAPI, UploadFile, File
+import os
+import uuid
+import numpy as np
+import asyncio
+import json
+
 
 app = FastAPI()
 processor = DonutProcessor.from_pretrained(
@@ -44,3 +52,56 @@ async def predict(file: UploadFile = File(...)):
     sequence = re.sub(r"<.*?>", "", sequence, count=1).strip()
 
     return {"result": processor.token2json(sequence)}
+
+
+
+models = [
+    "VGG-Face",
+    "Facenet",
+    "Facenet512",
+    "OpenFace",
+    "DeepFace",
+    "DeepID",
+    "ArcFace",
+    "Dlib",
+    "SFace",
+]
+metrics = ["cosine", "euclidean", "euclidean_l2"]
+backends = [
+    'opencv',
+    'ssd',
+    'dlib',
+    'mtcnn',
+    'retinaface',
+    'mediapipe'
+]
+
+async def process_verification(source_filename, target_filename):
+    result = DeepFace.verify(img1_path=source_filename,
+                             img2_path=target_filename,
+                             model_name=models[0],
+                             distance_metric=metrics[0],
+                             detector_backend=backends[1]
+                             )
+    return result
+
+
+@app.post("/verify/images")
+async def process_images(source_image: UploadFile = File(...), target_image: UploadFile = File(...)):
+
+    source_filename = str(uuid.uuid4()) + "_" + str(source_image.filename)
+    target_filename = str(uuid.uuid4()) + "_" + str(target_image.filename)
+
+    with open(source_filename, 'wb+') as f:
+        f.write(source_image.file.read())
+        f.close()
+    with open(target_filename, 'wb+') as f:
+        f.write(target_image.file.read())
+        f.close()
+
+    response = await process_verification(source_filename, target_filename)
+
+    # Delete the source and target images
+    os.remove(source_filename)
+    os.remove(target_filename)
+    return {"message": str(response)}
