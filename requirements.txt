@@ -53,3 +53,4 @@ urllib3==1.26.13
 uvicorn==0.22.0
 xxhash==3.2.0
 yarl==1.9.2
+deepface
