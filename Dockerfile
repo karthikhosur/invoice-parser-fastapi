@@ -1,5 +1,7 @@
 FROM python:3.9
 
+RUN sudo apt-get install libgl1-mesa-glx
+
 WORKDIR /code
 
 COPY ./requirements.txt /code/requirements.txt
