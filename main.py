@@ -79,7 +79,7 @@ backends = [
 async def process_verification(source_filename, target_filename):
     result = DeepFace.verify(img1_path=source_filename,
                              img2_path=target_filename,
-                             model_name=models[0],
+                             model_name=models[1],
                              distance_metric=metrics[0],
                              detector_backend=backends[1]
                              )
