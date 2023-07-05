@@ -110,29 +110,26 @@ async def process_images(source_image: UploadFile = File(...), target_image: Upl
 
 
 
-
-# Define the request model
-class AudioRequest(BaseModel):
-    audio_file: UploadFile
-
 # Define a temporary directory to store uploaded files
 TEMP_DIRECTORY = "./temp"
 
 @app.post("/convert_audio")
-async def convert_audio_to_text(request: AudioRequest):
+async def convert_audio_to_text(audio_file: UploadFile = File(...)):
     # Create a temporary directory if it doesn't exist
     os.makedirs(TEMP_DIRECTORY, exist_ok=True)
 
     # Save the uploaded audio file to the temporary directory
-    audio_path = os.path.join(TEMP_DIRECTORY, request.audio_file.filename)
-    with open(audio_path, "wb") as audio_file:
-        shutil.copyfileobj(request.audio_file.file, audio_file)
+    audio_path = os.path.join(TEMP_DIRECTORY, audio_file.filename)
+    with open(audio_path, "wb") as file:
+        shutil.copyfileobj(audio_file.file, file)
 
-    # Convert audio to text using OpenAI
-
+    # Convert audio to text using OpenAI Whisper
     model = whisper.load_model("base")
     result = model.transcribe(audio_path)
-    print(result["text"])
+    text = result["text"]
+
+    # Remove the temporary audio file
     os.remove(audio_path)
 
-    return {"text": result["text"]}
+    # Return the converted text
+    return {"text": text}
