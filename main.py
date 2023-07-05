@@ -11,6 +11,7 @@ import numpy as np
 import asyncio
 import json
 import whisper
+from pydantic import BaseModel
 
 
 app = FastAPI()
