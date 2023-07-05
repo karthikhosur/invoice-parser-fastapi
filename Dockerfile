@@ -1,7 +1,7 @@
 FROM python:3.9
 
 RUN apt-get update && apt-get install -y libgl1-mesa-glx
-RUN  apt-get update && sudo apt-get  -y  install ffmpeg
+RUN  apt-get update &&  apt-get  -y  install ffmpeg
 
 WORKDIR /code
 
