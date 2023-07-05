@@ -12,6 +12,7 @@ import asyncio
 import json
 import whisper
 from pydantic import BaseModel
+import shutil
 
 
 app = FastAPI()
